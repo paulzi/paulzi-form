@@ -22,6 +22,12 @@ When an event occurs ```formajaxdone``` event with the correct content-type of r
 
 You can ```preventDefault()``` ```formajaxdone``` event, then the response processing and adding alert to output will not occur.
 
+### Ajax form with files
+With jQuery Form plugin (https://github.com/malsup/form/) you can send files with fallback for browsers, not supported XMLHttpRequest Level 2.
+To use, simply specify enctype="multipart/form-data" and connect jQuery Form plug-in, the script will detect that you want to use this plug-in.
+
+Generates additional events:
+- ```formajaxprogress(loaded, total, percent)``` - when ajax uploading progress 
 
 ### Not send empty fields
 
