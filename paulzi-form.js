@@ -2,7 +2,7 @@
  * PaulZi-Form module
  * Provide: ajax submit, delete empty fields before submit, submit button style, form alert.
  * @module paulzi/form
- * @version 2.1.1
+ * @version 2.2.0
  * @author PaulZi (pavel.zimakoff@gmail.com)
  * @license MIT (https://github.com/Paul-Zi/paulzi-form/blob/master/LICENSE)
  * @see https://github.com/Paul-Zi/paulzi-form
@@ -47,20 +47,38 @@
     };
     
     
+    // is submit
+    var isSubmit = function(item) {
+        return $.inArray(item.prop('tagName'), ['INPUT', 'BUTTON']) !== -1
+            && $.inArray(item.attr('type').toLowerCase(), ['submit', 'image']) !== -1;
+    };
+    
+    
     // btn-loading
-    var btnLoadingClickHandler = function(e) {
-        $(this).addClass('disabled');
+    var btnLoadingSubmitHandler = function(e) {
+        if (e.isDefaultPrevented()) return false;
+        if ($(this).hasClass('form-loading')) {
+            e.preventDefault();
+            return false;
+        }
+        $(this).addClass('form-loading');
         
-        var loadingText = $(this).data('loadingText');
+        var btn = $(document.activeElement);
+        if (!isSubmit(btn)) {
+            btn = $(this).find('.btn-submit-default');
+        }
+        btn.addClass('disabled');
+        
+        var loadingText = btn.data('loadingText');
         if (loadingText) {
-            $(this).data('loadingText', $(this).text());
-            $(this).text(loadingText);
+            btn.data('loadingText', btn.text());
+            btn.text(loadingText);
         }
         
-        var loadingIcon = $(this).data('loadingIcon');
+        var loadingIcon = btn.data('loadingIcon');
         if (loadingIcon) {
-            $('<span>&nbsp;</span>').addClass('btn-loading-space').prependTo(this);
-            $('<i>').addClass('btn-loading-icon').addClass(loadingIcon).prependTo(this);
+            $('<span>&nbsp;</span>').addClass('btn-loading-space').prependTo(btn);
+            $('<i>').addClass('btn-loading-icon').addClass(loadingIcon).prependTo(btn);
         }
     };
     
@@ -77,8 +95,8 @@
         });
     };
     
-    $(document).on('click',             '.btn-loading', btnLoadingClickHandler);
-    $(document).on('formajaxalways',    '.form-ajax',   btnLoadingFormAjaxAlwaysHandler);
+    $(document).on('submit.paulzi-form',         'form',         btnLoadingSubmitHandler);
+    $(document).on('formajaxalways.paulzi-form', '.form-ajax',   btnLoadingFormAjaxAlwaysHandler);
     
     
     // form-no-empty
@@ -98,19 +116,22 @@
             .each(function(){ this.disabled = false; });
     };
     
-    $(document).on('submit',            '.form-no-empty',   noEmptySubmitHandler);
-    $(document).on('formajaxalways',    '.form-no-empty',   noEmptyFormAjaxAlwaysHandler);
+    $(document).on('submit.paulzi-form',         '.form-no-empty',   noEmptySubmitHandler);
+    $(document).on('formajaxalways.paulzi-form', '.form-no-empty',   noEmptyFormAjaxAlwaysHandler);
     
     
     // form-ajax
+    var inputImageClickHandler = function(e) {
+        var offset = $(this).offset();
+        $(this).prop('paulziFormX', e.pageX - offset.left);
+        $(this).prop('paulziFormY', e.pageY - offset.top);
+    };
+    
     var ajaxSubmitHandler = function(e) {
         if (e.isDefaultPrevented()) return false;
         e.preventDefault();
         
         var form = $(this);
-        if (form.hasClass('form-loading')) return false;
-        
-        form.addClass('form-loading');
         var output = form.find('output').empty();
         
         var doneCallback = function(data, textStatus, jqXHR) {
@@ -187,10 +208,23 @@
                 }
             });
         } else {
+            var data = form.serializeArray();
+            var btn = $(document.activeElement);
+            if (btn.attr('name') && !btn.is(":disabled") && isSubmit(btn)) {
+                data.push({name: btn.attr('name'), value: btn.val()});
+                if (btn.prop('paulziFormX')) {
+                    data.push({name: btn.attr('name') + '.x', value: btn.prop('paulziFormX')});
+                    btn.removeProp('paulziFormX');
+                }
+                if (btn.prop('paulziFormY')) {
+                    data.push({name: btn.attr('name') + '.y', value: btn.prop('paulziFormY')});
+                    btn.removeProp('paulziFormY');
+                }
+            }
             $.ajax({
                 method:     form.attr('method') || 'GET',
                 url:        form.attr('action'),
-                data:       form.serialize(),
+                data:       data,
                 beforeSend: beforeSendCallback
             })
             .done(doneCallback)
@@ -201,5 +235,6 @@
         return false;
     };
     
-    $(document).on('submit', '.form-ajax', ajaxSubmitHandler);
+    $(document).on('click.paulzi-form',     'input[type="image"]',  inputImageClickHandler);
+    $(document).on('submit.paulzi-form',    '.form-ajax',           ajaxSubmitHandler);
 }));

@@ -2,13 +2,16 @@
 
 ## Quick start
 
+
+### All forms
+
+When form is processing, it has class ```form-loading```. Until a response is received, the form can not be sent again.
+
 ### Ajax form send
 
 Add class ```form-ajax``` to form and add ```<output>``` or ```<* class="form-output">``` tag in form.
 
 Response must return correct content-type for append to output. Else response can be processed by script.
-
-When form processing AJAX request his have class ```form-loading```. Until a response is received, the form can not be sent again.
 
 Generate events:
 - ```formajaxbefore(jqXHR, settings)``` - you can change setting and cancel request by ```preventDefault()```
@@ -27,7 +30,10 @@ With jQuery Form plugin (https://github.com/malsup/form/) you can send files wit
 To use, simply specify enctype="multipart/form-data" and connect jQuery Form plug-in, the script will detect that you want to use this plug-in.
 
 Generates additional events:
-- ```formajaxprogress(loaded, total, percent)``` - when ajax uploading progress 
+- ```formajaxprogress(loaded, total, percent)``` - when ajax uploading progress
+
+### Support submit buttons with name or type=image
+Support submit buttons with name and ```input[type="image"]``` mouse click offset.
 
 ### Not send empty fields
 
@@ -36,6 +42,7 @@ Simply add class ```form-no-empty``` to form.
 
 ### Change status of submit button
 Add class ```.btn-loading``` to submit button. When the button is pressed, it changes the status to disabled automatically. And restores the status only after receiving the AJAX response.
+Add class ```.btn-submit-default``` to submit button, then it will be used as the target of a form submit from the keyboard.
 
 If you add the attribute ```data-loading-icon```, during the process form sending, the button prepended icon. Icon realized by <i> tag with specified classes in attribute.
 Example
@@ -47,7 +54,7 @@ Example
 <button type="submit" class="btn btn-primary btn-loading" data-loading-icon="glyphicon glyphicon-refresh">Submit</button>
 ```
 
-If you add the attribute ```data-loading-test```, during the process form sending, the button text changes to the specified in attribute.
+If you add the attribute ```data-loading-text```, during the process form sending, the button text changes to the specified in attribute.
 
 
 ### Form alerts
