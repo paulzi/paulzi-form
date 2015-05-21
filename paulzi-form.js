@@ -140,7 +140,7 @@
             if (event.isDefaultPrevented()) return;
             
             if (typeof(data) !== 'string') return;
-            data = $.parseHTML(data, true);
+            data = $($.parseHTML(data, true));
             var redirect = data.data('redirect');
             if (redirect) {
                 document.location.href = redirect;
@@ -165,7 +165,7 @@
             if (event.isDefaultPrevented()) return;
             
             var alert = false;
-            if (jqXHR.responseText) alert = $.parseHTML(jqXHR.responseText, true);
+            if (jqXHR.responseText) alert = $($.parseHTML(jqXHR.responseText, true));
             if (alert && alert.hasClass('alert')) {
                 form.formAlert(alert);
             } else {
