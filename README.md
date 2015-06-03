@@ -10,6 +10,7 @@ When form is processing, it has class ```form-loading```. Until a response is re
 ### Ajax form send
 
 Add class ```form-ajax``` to form and add ```<output>``` or ```<* class="form-output">``` tag in form.
+You can use `data-form-output` for set global output content.
 
 Response must return correct content-type for append to output. Else response can be processed by script.
 

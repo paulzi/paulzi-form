@@ -2,7 +2,7 @@
  * PaulZi-Form module
  * Provide: ajax submit, delete empty fields before submit, submit button style, form alert.
  * @module paulzi/form
- * @version 2.2.2
+ * @version 2.2.3
  * @author PaulZi (pavel.zimakoff@gmail.com)
  * @license MIT (https://github.com/Paul-Zi/paulzi-form/blob/master/LICENSE)
  * @see https://github.com/Paul-Zi/paulzi-form
@@ -132,7 +132,10 @@
         e.preventDefault();
         
         var form = $(this);
-        var output = form.find('output').empty();
+        var output = form.find('output, .form-output').empty();
+        if (form.data('form-output')) {
+            output = $(form.data('form-output'));
+        }
         
         var doneCallback = function(data, textStatus, jqXHR) {
             var event = jQuery.Event("formajaxdone");
@@ -146,7 +149,7 @@
                 document.location.href = redirect;
                 return;
             }
-            $(document).trigger('contentprepare', [data]);
+            form.trigger('contentprepare', [data]);
             if (data.hasClass('form-replace')) {
                 form.replaceWith(data);
             } else {
@@ -156,7 +159,7 @@
                     output.html(data);
                 }
             }
-            $(document).trigger('contentinit', [data]);
+            form.trigger('contentinit', [data]);
         };
         
         var failCallback = function(jqXHR, textStatus, errorThrown) {
