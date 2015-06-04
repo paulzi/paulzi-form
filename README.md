@@ -40,6 +40,10 @@ Support submit buttons with name and ```input[type="image"]``` mouse click offse
 
 Simply add class ```form-no-empty``` to form.
 
+### No ajax button
+
+If you want to send a form normally, only some button, simply add `btn-no-ajax` class to this buttons.
+ 
 
 ### Change status of submit button
 Add class ```.btn-loading``` to submit button. When the button is pressed, it changes the status to disabled automatically. And restores the status only after receiving the AJAX response.
