@@ -2,7 +2,7 @@
  * PaulZi-Form module
  * Provide: ajax submit, delete empty fields before submit, submit button style, form alert.
  * @module paulzi/form
- * @version 2.2.4
+ * @version 2.3.0
  * @author PaulZi (pavel.zimakoff@gmail.com)
  * @license MIT (https://github.com/Paul-Zi/paulzi-form/blob/master/LICENSE)
  * @see https://github.com/Paul-Zi/paulzi-form
@@ -98,7 +98,89 @@
     $(document).on('submit.paulzi-form',         'form',         btnLoadingSubmitHandler);
     $(document).on('formajaxalways.paulzi-form', '.form-ajax',   btnLoadingFormAjaxAlwaysHandler);
     
-    
+
+    var _formAttrSupport;
+
+    var formAttrList = ['action', 'enctype', 'method', 'target'];
+
+    var formAttrSupport = function() {
+        if (typeof(_formAttrSupport) !== 'undefined') {
+            return _formAttrSupport;
+        }
+        var input   = document.createElement('input');
+        var form    = document.createElement('form');
+        var formId  = '__test-input-form-reference-support';
+        form.id = formId;
+        document.body.appendChild(form);
+        document.body.appendChild(input);
+        input.setAttribute('form', formId);
+        //for (var i=0; i < form.length; i++) {
+        //    alert('support: ' + (form[i] == input));
+        //}
+        _formAttrSupport = (input.form === form);
+        document.body.removeChild(form);
+        document.body.removeChild(input);
+        return _formAttrSupport;
+    };
+
+    var formActionAttrSupport = function() {
+        var input = document.createElement("input");
+        return !!('formAction' in input);
+    };
+
+    // form html5 attributes polyfill
+    var attrPolyfillSubmitHandler = function(e) {
+        var that  = this;
+        var $form = $(this);
+        if (!formAttrSupport()) {
+            var id = $form.attr('id');
+            if (id) {
+                var list = $('[form="' + id + '"]')
+                    .not('form#' + id + ' [form="' + id + '"]')
+                    .filter(function(){
+                        return this.name && !$(this).is(':disabled') && (this.checked || (this.type !== 'checkbox' && this.type !== 'radio'));
+                    }).each(function(){
+                        $('<input type="hidden">')
+                            .attr('name', this.name)
+                            .val($(this).val())
+                            .addClass('form-html5-attributes-polyfill')
+                            .appendTo(that);
+                    });
+            }
+        }
+        if (!formActionAttrSupport()) {
+            var btn = $(document.activeElement);
+            if (isSubmit(btn)) {
+                $.each(formAttrList, function (i, a) {
+                    var attr = btn.attr('form' + a);
+                    if (attr) {
+                        $form.data('formAttrPolyfill' + a, attr);
+                        $form.attr(a, attr);
+                    }
+                });
+            }
+        }
+    };
+
+    var attrPolyfillFormAjaxAlwaysHandler = function(e) {
+        var $form = $(this);
+        if (!formAttrSupport()) {
+            $form.find('.form-html5-attributes-polyfill').remove();
+        }
+        if (!formActionAttrSupport()) {
+            $.each(formAttrList, function (i, a) {
+                if ($form.hasData('formAttrPolyfill' + a)) {
+                    $form.attr(a, $form.data('formAttrPolyfill' + a));
+                    $form.removeData('formAttrPolyfill' + a);
+                }
+            });
+        }
+    };
+
+    $(document).on('submit.paulzi-form',         'form', attrPolyfillSubmitHandler);
+    $(document).on('formajaxalways.paulzi-form', 'form', attrPolyfillFormAjaxAlwaysHandler);
+
+
     // form-no-empty
     var noEmptySubmitHandler = function(e) {
         $(this)

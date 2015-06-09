@@ -3,6 +3,10 @@
 ## Quick start
 
 
+### html5 form* attributes polyfill
+Use `form`, `formaction`, `formenctype`, `formmethod`, `formtarget` attributes! This script will support older browsers.
+
+
 ### All forms
 
 When form is processing, it has class ```form-loading```. Until a response is received, the form can not be sent again.
