@@ -13,10 +13,10 @@ When form is processing, it has class ```form-loading```. Until a response is re
 
 ### Ajax form send
 
+This method support active submit button names and `<input type="image">` `x`, `y` parameters. Also support html5 form* attributes for override form action and method.
 Add class ```form-ajax``` to form and add ```<output>``` or ```<* class="form-output">``` tag in form.
 You can use `data-form-output` for set global output content.
-
-Response must return correct content-type for append to output. Else response can be processed by script.
+Response must return correct content-type text/html for append to output. Else response can be processed by script.
 
 Generate events:
 - ```formajaxbefore(jqXHR, settings)``` - you can change setting and cancel request by ```preventDefault()```
@@ -29,10 +29,16 @@ When an event occurs ```formajaxdone``` event with the correct content-type of r
 - ```contentinit``` - after add content to DOM
 
 You can ```preventDefault()``` ```formajaxdone``` event, then the response processing and adding alert to output will not occur.
+If you specify `form-replace` class to root tag, all form will be replace by output.
+If root tag is has class `alert`, it we automate make `alert-dismissible` if bootstrap is included and generate `formAlert()` (see below).
+
+### Redirect after AJAX
+Set X-Redirect header in response for redirect page. You can stop redirect, if `preventDefault()` `formajaxdone` or `formajaxfail` event.
 
 ### Ajax form with files
 With jQuery Form plugin (https://github.com/malsup/form/) you can send files with fallback for browsers, not supported XMLHttpRequest Level 2.
 To use, simply specify enctype="multipart/form-data" and connect jQuery Form plug-in, the script will detect that you want to use this plug-in.
+Additional send parameter `X-Requested-With` with value `XMLHttpRequest`, for detect iframe method of form submit.
 
 Generates additional events:
 - ```formajaxprogress(loaded, total, percent)``` - when ajax uploading progress

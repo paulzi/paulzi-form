@@ -2,7 +2,7 @@
  * PaulZi-Form module
  * Provide: ajax submit, delete empty fields before submit, submit button style, form alert.
  * @module paulzi/form
- * @version 2.3.0
+ * @version 2.3.1
  * @author PaulZi (pavel.zimakoff@gmail.com)
  * @license MIT (https://github.com/Paul-Zi/paulzi-form/blob/master/LICENSE)
  * @see https://github.com/Paul-Zi/paulzi-form
@@ -56,7 +56,9 @@
     
     // btn-loading
     var btnLoadingSubmitHandler = function(e) {
-        if (e.isDefaultPrevented()) return false;
+        if (e.isDefaultPrevented()) {
+            return false;
+        }
         if ($(this).hasClass('form-loading')) {
             e.preventDefault();
             return false;
@@ -143,7 +145,7 @@
                         $('<input type="hidden">')
                             .attr('name', this.name)
                             .val($(this).val())
-                            .addClass('form-html5-attributes-polyfill')
+                            .addClass('paulzi-form-polyfill')
                             .appendTo(that);
                     });
             }
@@ -154,7 +156,7 @@
                 $.each(formAttrList, function (i, a) {
                     var attr = btn.attr('form' + a);
                     if (attr) {
-                        $form.data('formAttrPolyfill' + a, attr);
+                        $form.data('paulziFormPolyfill' + a, attr);
                         $form.attr(a, attr);
                     }
                 });
@@ -165,13 +167,13 @@
     var attrPolyfillFormAjaxAlwaysHandler = function(e) {
         var $form = $(this);
         if (!formAttrSupport()) {
-            $form.find('.form-html5-attributes-polyfill').remove();
+            $form.find('.paulzi-form-polyfill').remove();
         }
         if (!formActionAttrSupport()) {
             $.each(formAttrList, function (i, a) {
-                if ($form.hasData('formAttrPolyfill' + a)) {
-                    $form.attr(a, $form.data('formAttrPolyfill' + a));
-                    $form.removeData('formAttrPolyfill' + a);
+                if ($form.hasData('paulziFormPolyfill' + a)) {
+                    $form.attr(a, $form.data('paulziFormPolyfill' + a));
+                    $form.removeData('paulziFormPolyfill' + a);
                 }
             });
         }
@@ -210,7 +212,9 @@
     };
     
     var ajaxSubmitHandler = function(e) {
-        if (e.isDefaultPrevented()) return false;
+        if (e.isDefaultPrevented()) {
+            return false;
+        }
         if ($(document.activeElement).hasClass('btn-no-ajax')) {
             return true;
         }
@@ -225,15 +229,21 @@
         var doneCallback = function(data, textStatus, jqXHR) {
             var event = jQuery.Event("formajaxdone");
             form.trigger(event, arguments);
-            if (event.isDefaultPrevented()) return;
-            
-            if (typeof(data) !== 'string') return;
-            data = $($.parseHTML(data, true));
-            var redirect = data.data('redirect');
+            if (event.isDefaultPrevented()) {
+                return;
+            }
+
+            var redirect = jqXHR.getResponseHeader('X-Redirect');
             if (redirect) {
                 document.location.href = redirect;
                 return;
             }
+
+            if (!/^text\/html(;|$)/.test(jqXHR.getResponseHeader('Content-Type'))) {
+                return;
+            }
+
+            data = $($.parseHTML(data, true));
             form.trigger('contentprepare', [data]);
             if (data.hasClass('form-replace')) {
                 form.replaceWith(data);
@@ -250,10 +260,20 @@
         var failCallback = function(jqXHR, textStatus, errorThrown) {
             var event = jQuery.Event("formajaxfail");
             form.trigger(event, arguments);
-            if (event.isDefaultPrevented()) return;
+            if (event.isDefaultPrevented()) {
+                return;
+            }
+
+            var redirect = jqXHR.getResponseHeader('X-Redirect');
+            if (redirect) {
+                document.location.href = redirect;
+                return;
+            }
             
             var alert = false;
-            if (jqXHR.responseText) alert = $($.parseHTML(jqXHR.responseText, true));
+            if (jqXHR.responseText) {
+                alert = $($.parseHTML(jqXHR.responseText, true));
+            }
             if (alert && alert.hasClass('alert')) {
                 form.formAlert(alert);
             } else {
@@ -264,7 +284,9 @@
         var alwaysCallback = function() {
             var event = jQuery.Event("formajaxalways");
             form.trigger(event, arguments);
-            if (event.isDefaultPrevented()) return;
+            if (event.isDefaultPrevented()) {
+                return;
+            }
             
             form.removeClass('form-loading');
         };
@@ -296,9 +318,17 @@
                 }
             });
         } else {
-            var data = form.serializeArray();
-            var btn = $(document.activeElement);
+            var url     = form.attr('action');
+            var method  = form.attr('method') || 'GET';
+            var data    = form.serializeArray();
+            var btn     = $(document.activeElement);
             if (btn.attr('name') && !btn.is(":disabled") && isSubmit(btn)) {
+                if (btn.attr('formaction')) {
+                    url = btn.attr('formaction');
+                }
+                if (btn.attr('formmethod')) {
+                    method = btn.attr('formmethod');
+                }
                 data.push({name: btn.attr('name'), value: btn.val()});
                 if (btn.prop('paulziFormX')) {
                     data.push({name: btn.attr('name') + '.x', value: btn.prop('paulziFormX')});
@@ -310,8 +340,8 @@
                 }
             }
             $.ajax({
-                method:     form.attr('method') || 'GET',
-                url:        form.attr('action'),
+                method:     method,
+                url:        url,
                 data:       data,
                 beforeSend: beforeSendCallback
             })
