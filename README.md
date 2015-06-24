@@ -55,7 +55,7 @@ If you want to submit a form normally, but only some buttons, add `btn-no-ajax` 
 Add class `.btn-loading` to submit button. When the button is pressed, it changes the status to disabled automatically, and restores the status only after receiving the AJAX response.
 Add class `.btn-submit-default` to submit button, then it will be used as the target of a form submit from the keyboard.
 
-If you add the attribute `data-loading-icon`, during the process form sending, the button prepended icon. Icon realized by <i> tag with specified classes in attribute.
+If you add the attribute `data-loading-icon`, during the process form sending, the button prepended icon. Icon realized by `<i>` tag with specified classes in attribute.
 Example:
 ```html
 <!-- font awesome -->
