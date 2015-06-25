@@ -19,8 +19,9 @@
     // internal functions
     var getFormOutput = function ($form) {
         var $output = $form.find('output, .form-output').first();
-        if ($form.hasData('formOutput')) {
-            $output = $($form.data('formOutput'));
+        var sel = $form.data('formOutput');
+        if (sel) {
+            $output = $(sel);
         }
         return $output;
     };
@@ -175,10 +176,10 @@
         }
         if (!formActionAttrSupport()) {
             $.each(formAttrList, function (i, a) {
-                if ($form.hasData('paulziFormPolyfill' + a)) {
-                    $form
-                        .attr(a, $form.data('paulziFormPolyfill' + a))
-                        .removeData('paulziFormPolyfill' + a);
+                var name = 'paulziFormPolyfill' + a;
+                var val  = $form.data(name);
+                if (val) {
+                    $form.attr(a, val).removeData(name);
                 }
             });
         }
@@ -230,7 +231,7 @@
 
         var $form = $(this);
 
-        var redirect = function () {
+        var redirect = function (jqXHR) {
             var redirect = jqXHR.getResponseHeader('X-Redirect');
             if (redirect) {
                 document.location.href = redirect;
@@ -246,7 +247,7 @@
                 return;
             }
 
-            if (redirect()) {
+            if (redirect(jqXHR)) {
                 return;
             }
 
@@ -279,7 +280,7 @@
                 return;
             }
 
-            if (redirect()) {
+            if (redirect(jqXHR)) {
                 return;
             }
             
@@ -290,7 +291,9 @@
             if ($alert && $alert.hasClass('alert')) {
                 $form.formAlert($alert);
             } else {
-                $form.formAlert(['[' + textStatus + ']', errorThrown, jqXHR.responseText].join(' '), 'danger');
+                $alert = ['[' + textStatus + ']', errorThrown, jqXHR.responseText].join('<br>');
+                $alert = $($.parseHTML($alert, true));
+                $form.formAlert($alert, 'danger');
             }
         };
         
