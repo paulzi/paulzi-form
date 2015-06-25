@@ -77,9 +77,9 @@
         }
         $btn.addClass('disabled');
         
-        var loadingText = $btn.data('loadingText');
+        var loadingText = $btn.attr('data-loading-text');
         if (loadingText) {
-            $btn.data('loadingText', $btn.text());
+            $btn.data('paulziFormLoadingText', $btn.text());
             $btn.text(loadingText);
         }
         
@@ -96,9 +96,9 @@
         $btn.children('.btn-loading-icon, .btn-loading-space').remove();
         $btn.each(function () {
             var $this = $(this);
-            var loadingText = $this.data('loadingText');
+            var loadingText = $this.data('paulziFormLoadingText');
             if (loadingText) {
-                $this.data('loadingText', $(this).text()).text(loadingText);
+                $this.text(loadingText);
             }
         });
     };
