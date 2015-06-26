@@ -8,7 +8,7 @@ Use `form`, `formaction`, `formenctype`, `formmethod`, `formtarget` attributes! 
 
 ## Changing the behavior of all forms
 
-When form is submitting, it has class `form-loading`. Until a response is received, the form can not be submit again.
+When form is submitting, it has class `form-loading`. Until a response is received, the form can not be submit again. If you do not want to block resending form, add the class `form-no-block`.
 
 ## Do not send empty fields
 
