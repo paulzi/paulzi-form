@@ -37,12 +37,12 @@
      * @memberOf jQuery.fn
      * @param {jQuery} elem - alert contents
      * @param {string} type - alert CSS type
+     * @param {boolean} isJquery - elem is jQuery selector/object
      * @returns {jQuery} alert element
      */
-    $.fn.formAlert = function (elem, type) {
-
+    $.fn.formAlert = function (elem, type, isJquery) {
         var $form = $(this);
-        var $elem = $(elem);
+        var $elem = isJquery ? $(elem) : $($.parseHTML(elem, true));
         if (!$elem.hasClass('alert')) {
             type = type || 'info';
             $elem = $('<div role="alert" class="alert alert-' + type + '">').append($elem);
@@ -113,6 +113,9 @@
 
     var formAttrList = ['action', 'enctype', 'method', 'target'];
 
+    var formPolyfillClass = 'paulzi-form-polyfill';
+    var formPolyfillClassDisabled = formPolyfillClass + '-disabled';
+
     var formAttrSupport = function () {
         if (typeof(_formAttrSupport) !== 'undefined') {
             return _formAttrSupport;
@@ -139,17 +142,30 @@
         var that  = this;
         var $form = $(this);
         if (!formAttrSupport()) {
+            var list;
             var id = $form.attr('id');
+
+            // remove from form
+            list = $form.find('[form]').not(':disabled');
             if (id) {
-                var list = $('[form="' + id + '"]')
+                list = list.not('[form="' + id + '"]');
+            }
+            list
+                .addClass(formPolyfillClassDisabled)
+                .prop('disabled', true);
+
+            // add other
+            if (id) {
+                $('[form="' + id + '"]')
                     .not('form#' + id + ' [form="' + id + '"]')
                     .filter(function () {
                         return this.name && !$(this).is(':disabled') && (this.checked || (this.type !== 'checkbox' && this.type !== 'radio'));
-                    }).each(function () {
+                    })
+                    .each(function () {
                         $('<input type="hidden">')
                             .attr('name', this.name)
                             .val($(this).val())
-                            .addClass('paulzi-form-polyfill')
+                            .addClass(formPolyfillClass)
                             .appendTo(that);
                     });
             }
@@ -172,7 +188,11 @@
     var attrPolyfillFormAjaxAlwaysHandler = function (e) {
         var $form = $(this);
         if (!formAttrSupport()) {
-            $form.find('.paulzi-form-polyfill').remove();
+            $form.find('.' + formPolyfillClass)
+                .remove();
+            $form.find('.' + formPolyfillClassDisabled)
+                .removeClass(formPolyfillClassDisabled)
+                .prop('disabled', false);
         }
         if (!formActionAttrSupport()) {
             $.each(formAttrList, function (i, a) {
@@ -197,7 +217,7 @@
             .find(':enabled')
             .filter(function () { return this.value==''; })
             .addClass(noEmptyItemClass)
-            .each(function () { this.disabled = true; });
+            .prop('disabled', true);
         return true;
     };
     
@@ -205,7 +225,7 @@
         $(this)
             .find('.' + noEmptyItemClass)
             .removeClass(noEmptyItemClass)
-            .each(function () { this.disabled = false; });
+            .prop('disabled', false);
     };
     
     $(document).on('submit.paulzi-form',         '.form-no-empty',   noEmptySubmitHandler);
@@ -216,8 +236,8 @@
     var inputImageClickHandler = function (e) {
         var offset = $(this).offset();
         $(this)
-            .prop('paulziFormX', e.pageX - offset.left)
-            .prop('paulziFormY', e.pageY - offset.top);
+            .prop('paulziFormX', Math.round(e.pageX - offset.left))
+            .prop('paulziFormY', Math.round(e.pageY - offset.top));
     };
     
     var ajaxSubmitHandler = function (e) {
@@ -239,6 +259,8 @@
             }
             return false;
         };
+
+        var isJqueryFormPlugin = $form.attr('enctype') == 'multipart/form-data' && typeof($.fn.ajaxSubmit) === 'function';
         
         var doneCallback = function (data, textStatus, jqXHR) {
             var event = jQuery.Event("formajaxdone");
@@ -251,7 +273,7 @@
                 return;
             }
 
-            if (!/^text\/html(;|$)/.test(jqXHR.getResponseHeader('Content-Type'))) {
+            if (!isJqueryFormPlugin && !/^text\/html(;|$)/.test(jqXHR.getResponseHeader('Content-Type'))) {
                 return;
             }
 
@@ -266,7 +288,7 @@
                     $output = $(dataOutput);
                 }
                 if ($data.hasClass('alert')) {
-                    $data = $form.formAlert($data);
+                    $data = $form.formAlert($data, false, true);
                 }
                 $output.html($data);
             }
@@ -289,10 +311,9 @@
                 $alert = $($.parseHTML(jqXHR.responseText, true));
             }
             if ($alert && $alert.hasClass('alert')) {
-                $form.formAlert($alert);
+                $form.formAlert($alert, false, true);
             } else {
                 $alert = ['[' + textStatus + ']', errorThrown, jqXHR.responseText].join('<br>');
-                $alert = $($.parseHTML($alert, true));
                 $form.formAlert($alert, 'danger');
             }
         };
@@ -312,8 +333,8 @@
             $form.trigger(event, [jqXHR, settings]);
             return !event.isDefaultPrevented();
         };
-        
-        if ($form.attr('enctype') == 'multipart/form-data' && typeof($.fn.ajaxSubmit) === 'function') {
+
+        if (isJqueryFormPlugin) {
             // if exists file in form and included jquery.form plugin, use it. @see: http://malsup.com/jquery/form/
             $form.ajaxSubmit({
                 beforeSubmit: function (arr, form, options) {
@@ -337,22 +358,29 @@
             var url     = $form.attr('action');
             var method  = $form.attr('method') || 'GET';
             var data    = $form.serializeArray();
-            var $btn     = $(document.activeElement);
-            if ($btn.attr('name') && !$btn.is(":disabled") && isSubmit($btn)) {
-                if ($btn.attr('formaction')) {
-                    url = $btn.attr('formaction');
+            var $btn    = $(document.activeElement);
+            var value;
+            var isSubmittable = !$btn.is(":disabled") && isSubmit($btn);
+            if (isSubmittable) {
+                if (value = $btn.attr('formaction')) {
+                    url = value;
                 }
-                if ($btn.attr('formmethod')) {
-                    method = $btn.attr('formmethod');
+                if (value = $btn.attr('formmethod')) {
+                    method = value;
                 }
-                data.push({name: $btn.attr('name'), value: $btn.val()});
-                if ($btn.prop('paulziformX')) {
-                    data.push({name: $btn.attr('name') + '.x', value: $btn.prop('paulziformX')});
-                    $btn.removeProp('paulziformX');
-                }
-                if ($btn.prop('paulziformY')) {
-                    data.push({name: $btn.attr('name') + '.y', value: $btn.prop('paulziformY')});
-                    $btn.removeProp('paulziformY');
+                if ($btn.attr('name')) {
+                    value = $btn.prop('paulziFormX')
+                    if (typeof(value) === 'number') {
+                        data.push({name: $btn.attr('name') + '.x', value: value});
+                        $btn.removeProp('paulziFormX');
+                    } else {
+                        data.push({name: $btn.attr('name'), value: $btn.val()});
+                    }
+                    value = $btn.prop('paulziFormY')
+                    if (typeof(value) === 'number') {
+                        data.push({name: $btn.attr('name') + '.y', value: value});
+                        $btn.removeProp('paulziFormY');
+                    }
                 }
             }
             $.ajax({

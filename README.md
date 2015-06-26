@@ -1,5 +1,7 @@
 # PaulZi Form module
 
+DEMO: http://paulzi.ru/paulzi-form/
+
 ## Html5 form* attributes polyfill
 
 Use `form`, `formaction`, `formenctype`, `formmethod`, `formtarget` attributes! This script will provide support for older browsers.
@@ -8,11 +10,19 @@ Use `form`, `formaction`, `formenctype`, `formmethod`, `formtarget` attributes! 
 
 When form is submitting, it has class `form-loading`. Until a response is received, the form can not be submit again.
 
+## Do not send empty fields
+
+Just add a class `form-no-empty` to form.
+
 ## Ajax form send
 
 Provides submit the form via ajax. It supports the transfer of the name active submitting button and `<input type="image">` `x`, `y` parameters. Also support html5 form* attributes for override form action and method.
 
 For use, add class `form-ajax` to form and add `<output>` or `<* class="form-output">` tag in form. You can use `data-form-output` attribute for find output element globally in document.
+
+If you specify a class `form-replace` to root element of response, the form will replace by contents. You can also specify `data-form-output` attribute in root element of response to override the output element.
+
+If the root element has class `alert`, it we automate make `alert-dismissible` if bootstrap javascript is included on page.
 
 Response must return correct content-type `text/html` for append to output, otherwise it can be handled only by JavaScript.
 
@@ -24,23 +34,19 @@ Generate events:
 
 All defined in the script event behavior can be canceled by `preventDefault()`.
 
-At event `formajaxdone`, when the content is added to the output, for form generated two events ti prepare content:
+At event `formajaxdone`, when the content is added to the output, for form generated two events for initialize JavaScript components in new content:
 - `contentprepare` - before add content to DOM
 - `contentinit` - after add content to DOM
 
 Through this, you can initialize all JavaScript components such as page load, and when Ajax loading. Simple use:
 ```javascript
 $(function () {
-    $(document).trigger('preparecontent', [$(document)]);
-}
-$(document).on('preparecontent', function (cont) {
-    cont.find('.js-component').jsComponent();
+    $(document).trigger('contentinit', [$(document)]);
+});
+$(document).on('contentinit', function (e, cont) {
+    cont.find('.datepicker').datepicker();
 });
 ```
-
-If you specify a class `form-replace` to root element of response, the form will replace by contents. You can also specify `data-form-output` attribute in root element of response to override the output element.
-
-If the root element has class `alert`, it we automate make `alert-dismissible` if bootstrap javascript is included on page.
 
 ### Ajax form with files
 
@@ -53,13 +59,11 @@ Additionally, sent parameter `X-Requested-With` with value `XMLHttpRequest`, for
 Generates additional events:
 - `formajaxprogress (loaded, total, percent)` - when ajax uploading progress
 
+Note: the transfer form is through a malsup plugin, so support html5 form attributes and pass the name of the active submit button depends of the support of these features by this plugin. While it is not.
+
 ### Redirect after AJAX
 
 Set X-Redirect header in response for redirect page. You can stop redirect, if `preventDefault()` in `formajaxdone` or `formajaxfail` events.
-
-### Do not send empty fields
-
-Just add a class `form-no-empty` to form.
 
 ### No ajax button
 
@@ -87,4 +91,4 @@ If you add the attribute `data-loading-text`, during the process form sending, t
 
 ## Form alerts
 
-Use `$.formAlert(elem, type)` for add the bootstrap alert to form output.
+Use `$.formAlert(elem, type, isJquery)` for add the bootstrap alert to form output.
