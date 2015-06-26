@@ -3,7 +3,7 @@
  * Provide: ajax submit, delete empty fields before submit, submit button style, form alert.
  * @module paulzi/paulzi-form
  * @external jQuery
- * @version 2.4.0
+ * @version 2.4.1
  * @author PaulZi (pavel.zimakoff@gmail.com)
  * @license MIT (https://github.com/paulzi/paulzi-form/blob/master/LICENSE)
  * @see https://github.com/paulzi/paulzi-form
@@ -66,7 +66,7 @@
             return false;
         }
         var $this = $(this);
-        if ($this.hasClass('form-loading')) {
+        if ($this.hasClass('form-loading') && !$this.hasClass('form-no-block')) {
             e.preventDefault();
             return false;
         }

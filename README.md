@@ -2,19 +2,35 @@
 
 ## [DEMO](http://paulzi.ru/paulzi-form/)
 
-## Html5 form* attributes polyfill
+## Install
+
+Install via NPM
+```sh
+npm install paulzi-form
+```
+
+Install via Bower
+```sh
+bower install paulzi-form
+```
+
+Or install manually.
+
+## Features
+
+### Html5 form* attributes polyfill
 
 Use `form`, `formaction`, `formenctype`, `formmethod`, `formtarget` attributes! This script will provide support for older browsers.
 
-## Changing the behavior of all forms
+### Changing the behavior of all forms
 
-When form is submitting, it has class `form-loading`. Until a response is received, the form can not be submit again.
+When form is submitting, it has class `form-loading`. Until a response is received, the form can not be submit again. If you do not want to block resending form, add the class `form-no-block`.
 
-## Do not send empty fields
+### Do not send empty fields
 
 Just add a class `form-no-empty` to form.
 
-## Ajax form send
+### Ajax form send
 
 Provides submit the form via ajax. It supports the transfer of the name active submitting button and `<input type="image">` `x`, `y` parameters. Also support html5 form* attributes for override form action and method.
 
@@ -48,7 +64,7 @@ $(document).on('contentinit', function (e, cont) {
 });
 ```
 
-### Ajax form with files
+#### Ajax form with files
 
 With jQuery Form plugin (https://github.com/malsup/form/) you can send files with fallback for browsers, not supported XMLHttpRequest Level 2.
 
@@ -61,16 +77,16 @@ Generates additional events:
 
 Note: the transfer form is through a malsup plugin, so support html5 form attributes and pass the name of the active submit button depends of the support of these features by this plugin. While it is not.
 
-### Redirect after AJAX
+#### Redirect after AJAX
 
 Set X-Redirect header in response for redirect page. You can stop redirect, if `preventDefault()` in `formajaxdone` or `formajaxfail` events.
 
-### No ajax button
+#### No ajax button
 
 If you want to submit a form normally, but only some buttons, add `btn-no-ajax` class to this buttons.
  
  
-## Change status of submit button
+### Change status of submit button
 
 Add class `.btn-loading` to submit button. When the button is pressed, it changes the status to disabled automatically, and restores the status only after receiving the AJAX response.
 
@@ -89,6 +105,6 @@ Example:
 
 If you add the attribute `data-loading-text`, during the process form sending, the button text changes to the specified in attribute.
 
-## Form alerts
+### Form alerts
 
 Use `$.formAlert(elem, type, isJquery)` for add the bootstrap alert to form output.

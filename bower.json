@@ -1,6 +1,6 @@
 {
   "name": "paulzi-form",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "description": "JavaScript form helpers",
   "main": [
     "paulzi-form.js"
@@ -26,5 +26,10 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/paulzi/paulzi-form.git"
-  }
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components"
+  ]
 }
