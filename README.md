@@ -1,6 +1,6 @@
 # PaulZi Form module
 
-DEMO: http://paulzi.ru/paulzi-form/
+## DEMO: http://paulzi.ru/paulzi-form/
 
 ## Html5 form* attributes polyfill
 
