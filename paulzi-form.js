@@ -3,7 +3,7 @@
  * Provide: ajax submit, delete empty fields before submit, submit button style, form alert.
  * @module paulzi/paulzi-form
  * @external jQuery
- * @version 2.4.1
+ * @version 2.4.2
  * @author PaulZi (pavel.zimakoff@gmail.com)
  * @license MIT (https://github.com/paulzi/paulzi-form/blob/master/LICENSE)
  * @see https://github.com/paulzi/paulzi-form
@@ -80,8 +80,8 @@
         
         var loadingText = $btn.attr('data-loading-text');
         if (loadingText) {
-            $btn.data('paulziFormLoadingText', $btn.text());
-            $btn.text(loadingText);
+            $btn.data('paulziFormLoadingText', $btn.html());
+            $btn.html(loadingText);
         }
         
         var loadingIcon = $btn.data('loadingIcon');
@@ -99,7 +99,7 @@
             var $this = $(this);
             var loadingText = $this.data('paulziFormLoadingText');
             if (loadingText) {
-                $this.text(loadingText);
+                $this.html(loadingText);
             }
         });
     };
