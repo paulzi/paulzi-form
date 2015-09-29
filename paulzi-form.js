@@ -3,7 +3,7 @@
  * Provide: ajax submit, delete empty fields before submit, submit button style, form alert.
  * @module paulzi/paulzi-form
  * @external jQuery
- * @version 2.4.2
+ * @version 2.4.3
  * @author PaulZi (pavel.zimakoff@gmail.com)
  * @license MIT (https://github.com/paulzi/paulzi-form/blob/master/LICENSE)
  * @see https://github.com/paulzi/paulzi-form
@@ -28,7 +28,7 @@
 
     var isSubmit = function ($item) {
         return $.inArray($item.prop('tagName'), ['INPUT', 'BUTTON']) !== -1
-            && $.inArray($item.attr('type').toLowerCase(), ['submit', 'image']) !== -1;
+            && $item.attr('type') && $.inArray($item.attr('type').toLowerCase(), ['submit', 'image']) !== -1;
     };
 
 
