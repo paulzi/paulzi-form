@@ -43,7 +43,8 @@ If the root element has class `alert`, it we automate make `alert-dismissible` i
 Response must return correct content-type `text/html` for append to output, otherwise it can be handled only by JavaScript.
 
 Generate events:
-- `formajaxbefore (jqXHR, settings)` - you can change settings and cancel request by `preventDefault()`;
+- `formajaxbeforeparams ()` - before collect all fields for ajax request, you can change settings and cancel request by `preventDefault()`;
+- `formajaxbefore (jqXHR, settings)` - before make ajax request, you can change settings and cancel request by `preventDefault()`;
 - `formajaxdone (data, textStatus, jqXHR)` - when ajax receive success response;
 - `formajaxfail (jqXHR, textStatus, errorThrown)` - when ajax receive error response;
 - `formajaxalways()` - always after receive response.
@@ -84,7 +85,15 @@ Set X-Redirect header in response for redirect page. You can stop redirect, if `
 #### No ajax button
 
 If you want to submit a form normally, but only some buttons, add `btn-no-ajax` class to this buttons.
- 
+
+### Scenarios
+
+You can mark the fields, as the methods for given transmission:
+ - `form-on-ajax` - field send only by AJAX;
+ - `form-on-submit` - field send only by default submit;
+ - `form-on-none` - never send field;
+
+You can also specify a class for the parent container.
  
 ### Change status of submit button
 

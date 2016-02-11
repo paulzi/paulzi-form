@@ -3,7 +3,7 @@
  * Provide: ajax submit, delete empty fields before submit, submit button style, form alert.
  * @module paulzi/paulzi-form
  * @external jQuery
- * @version 2.4.3
+ * @version 2.5.0
  * @author PaulZi (pavel.zimakoff@gmail.com)
  * @license MIT (https://github.com/paulzi/paulzi-form/blob/master/LICENSE)
  * @see https://github.com/paulzi/paulzi-form
@@ -334,6 +334,12 @@
             return !event.isDefaultPrevented();
         };
 
+        var event = jQuery.Event("formajaxbeforeparams");
+        $form.trigger(event);
+        if (event.isDefaultPrevented()) {
+            return;
+        }
+
         if (isJqueryFormPlugin) {
             // if exists file in form and included jquery.form plugin, use it. @see: http://malsup.com/jquery/form/
             $form.ajaxSubmit({
@@ -399,4 +405,39 @@
     
     $(document).on('click.paulzi-form',     'input[type="image"]',  inputImageClickHandler);
     $(document).on('submit.paulzi-form',    '.form-ajax',           ajaxSubmitHandler);
+
+
+    // form-scenarios
+    var scenarioClass = 'paulzi-form-scenario-disabled';
+
+    var scenarioSubmitHandler = function (e) {
+        $(this)
+            .find('.form-on-none, .form-on-ajax')
+            .find(':enabled')
+            .addBack(':enabled')
+            .addClass(scenarioClass)
+            .prop('disabled', true);
+        return true;
+    };
+
+    var scenarioFormAjaxBeforeHandler = function (e) {
+        $(this)
+            .find('.form-on-none, .form-on-submit')
+            .find(':enabled')
+            .addBack(':enabled')
+            .addClass(scenarioClass)
+            .prop('disabled', true);
+        return true;
+    };
+
+    var scenarioFormAjaxAlwaysHandler = function (e) {
+        $(this)
+            .find('.' + scenarioClass)
+            .removeClass(scenarioClass)
+            .prop('disabled', false);
+    };
+
+    $(document).on('submit.paulzi-form',               scenarioSubmitHandler);
+    $(document).on('formajaxbeforeparams.paulzi-form', scenarioFormAjaxBeforeHandler);
+    $(document).on('formajaxalways.paulzi-form',       scenarioFormAjaxAlwaysHandler);
 }));
