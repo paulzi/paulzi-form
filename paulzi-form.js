@@ -3,7 +3,7 @@
  * Provide: ajax submit, delete empty fields before submit, submit button style, form alert.
  * @module paulzi/paulzi-form
  * @external jQuery
- * @version 2.5.0
+ * @version 2.5.1
  * @author PaulZi (pavel.zimakoff@gmail.com)
  * @license MIT (https://github.com/paulzi/paulzi-form/blob/master/LICENSE)
  * @see https://github.com/paulzi/paulzi-form
@@ -60,6 +60,14 @@
     };
 
 
+    // safari fix
+    $(document).on('click', function (e) {
+        if (document.activeElement === document.body && isSubmit($(e.target))) {
+            $(e.target).focus();
+        }
+    });
+
+
     // btn-loading
     var btnLoadingSubmitHandler = function (e) {
         if (e.isDefaultPrevented()) {
@@ -71,7 +79,7 @@
             return false;
         }
         $this.addClass('form-loading');
-        
+
         var $btn = $(document.activeElement).filter('.btn-loading');
         if (!isSubmit($btn)) {
             $btn = $this.find('.btn-loading.btn-submit-default');
