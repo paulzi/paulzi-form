@@ -3,7 +3,7 @@
  * Provide: ajax submit, delete empty fields before submit, submit button style, form alert.
  * @module paulzi/paulzi-form
  * @external jQuery
- * @version 2.5.1
+ * @version 2.5.2
  * @author PaulZi (pavel.zimakoff@gmail.com)
  * @license MIT (https://github.com/paulzi/paulzi-form/blob/master/LICENSE)
  * @see https://github.com/paulzi/paulzi-form
@@ -289,6 +289,7 @@
             $form.trigger('contentprepare', [$data]);
             if ($data.hasClass('form-replace')) {
                 $form.replaceWith($data);
+                $form = $data;
             } else {
                 var $output = getFormOutput($form);
                 var dataOutput = $data.data('formOutput');
