@@ -1,13 +1,8 @@
 {
   "name": "paulzi-form",
-  "version": "2.5.2",
+  "version": "3.0.0",
   "description": "JavaScript form helpers",
-  "main": [
-    "paulzi-form.js"
-  ],
-  "dependencies": {
-    "jquery": ">=1.5.0"
-  },
+  "main": "dist/paulzi-form.js",
   "moduleType": [
     "amd",
     "globals"
@@ -26,5 +21,19 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/paulzi/paulzi-form.git"
+  },
+  "dependencies": {
+    "jquery": ">=1.5.0",
+    "form-extra-events": "^1.0.1",
+    "jquery-iframe-ajax": "^1.0.1",
+    "form-association-polyfill": "^1.0.2"
+  },
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-jshint": "^1.0.0",
+    "grunt-contrib-uglify": "^1.0.1",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-umd": "^2.3.6"
   }
 }
