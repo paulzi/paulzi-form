@@ -1,6 +1,6 @@
-# PaulZi Form module
+# PaulZi Form v. 2
 
-## [DEMO](http://paulzi.ru/paulzi-form/)
+## [DEMO](http://paulzi.ru/paulzi-form-2/)
 
 ## Install
 
