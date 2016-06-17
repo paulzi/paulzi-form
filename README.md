@@ -8,6 +8,7 @@ JavaScript form helpers.
 Demo: http://paulzi.ru/paulzi-form/
 
 [Russian readme](https://github.com/paulzi/paulzi-form/blob/master/README.ru.md)
+
 [v2.x](https://github.com/paulzi/paulzi-form/tree/2.x)
 
 ## Install
