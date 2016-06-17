@@ -9,6 +9,8 @@
 
 [English readme](https://github.com/paulzi/paulzi-form)
 
+[v2.x](https://github.com/paulzi/paulzi-form/tree/2.x)
+
 ## Установка
 
 Установка через NPM
