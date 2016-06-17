@@ -29,18 +29,18 @@ Include library on page after jQuery. Select standalone or separate method:
 ### standalone (build-in dependencies)
 
 ```html
-<script src="/bower_components/jquery/dist/jquery.min.js">
-<script src="/bower_components/paulzi-form/dist/paulzi-form.all.min.js">
+<script src="/bower_components/jquery/dist/jquery.min.js"></script>
+<script src="/bower_components/paulzi-form/dist/paulzi-form.all.min.js"></script>
 ```
 
 ### separate (external dependencies)
 
 ```html
-<script src="/bower_components/jquery/dist/jquery.min.js">
-<script src="/bower_components/form-extra-events/dist/form-extra-events.min.js">
-<script src="/bower_components/form-association-polyfill/dist/form-association-polyfill.min.js">
-<script src="/bower_components/jquery-iframe-ajax/dist/jquery-iframe-ajax.min.js">
-<script src="/bower_components/paulzi-form/dist/paulzi-form.min.js">
+<script src="/bower_components/jquery/dist/jquery.min.js"></script>
+<script src="/bower_components/form-extra-events/dist/form-extra-events.min.js"></script>
+<script src="/bower_components/form-association-polyfill/dist/form-association-polyfill.min.js"></script>
+<script src="/bower_components/jquery-iframe-ajax/dist/jquery-iframe-ajax.min.js"></script>
+<script src="/bower_components/paulzi-form/dist/paulzi-form.min.js"></script>
 ```
 
 ## Features
