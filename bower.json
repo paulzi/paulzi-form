@@ -1,6 +1,5 @@
 {
   "name": "paulzi-form",
-  "version": "2.5.2",
   "description": "JavaScript form helpers",
   "main": [
     "paulzi-form.js"

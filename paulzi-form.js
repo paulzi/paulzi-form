@@ -3,7 +3,7 @@
  * Provide: ajax submit, delete empty fields before submit, submit button style, form alert.
  * @module paulzi/paulzi-form
  * @external jQuery
- * @version 2.5.2
+ * @version 2.5.3
  * @author PaulZi (pavel.zimakoff@gmail.com)
  * @license MIT (https://github.com/paulzi/paulzi-form/blob/master/LICENSE)
  * @see https://github.com/paulzi/paulzi-form
@@ -223,6 +223,7 @@
     var noEmptySubmitHandler = function (e) {
         $(this)
             .find(':enabled')
+            .not('button,input[type="submit"]')
             .filter(function () { return this.value==''; })
             .addClass(noEmptyItemClass)
             .prop('disabled', true);
