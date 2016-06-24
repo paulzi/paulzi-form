@@ -2,13 +2,13 @@
  * Form extra events
  * @see https://github.com/paulzi/form-extra-events
  * @license MIT (https://github.com/paulzi/form-extra-events/blob/master/LICENSE)
- * @version 1.0.1
+ * @version 1.1.0
  */
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module unless amdModuleId is set
     define(["jquery"], function (a0) {
-      return (factory(a0));
+      return (root['FormExtraEvents'] = factory(a0));
     });
   } else if (typeof exports === 'object') {
     // Node. Does not work with strict CommonJS, but
@@ -16,60 +16,114 @@
     // like Node.
     module.exports = factory(require("jquery"));
   } else {
-    factory(root.jQuery);
+    root['FormExtraEvents'] = factory(root.jQuery);
   }
 }(this, function ($) {
 
 'use strict';
 
-$(document).on('submit', 'form', function (e) {
+var $window = $(window);
+
+var FormExtraEvents = $.extend({
+    catchDefault:  false,
+    dataAttribute: 'catchDownload',
+    param:         '_requestId',
+    interval:      100,
+    timeout:       60000
+}, window.FormExtraEvents || {});
+
+var submitLastHandler = function (e) {
     if (!e.isDefaultPrevented()) {
-        var $form   = $(this),
-            $window = $(window);
-        $window.off('submit');
-        $window.one('submit', function () {
-            var event = $.Event("submitlast");
-            $form.trigger(event);
-            if (event.isDefaultPrevented()) {
-                e.preventDefault();
-            } else {
+        var $form   = $(e.target),
+            event   = $.Event('submitlast');
+        $form.trigger(event);
+        if (event.isDefaultPrevented()) {
+            e.preventDefault();
+        } else {
+
+            var beforeUnloadTimer, catchTimer, catchTimeoutTimer, requestId, $requestInput;
+
+            var trigger = function (type) {
                 $form.trigger({
-                    type:      'submitbefore',
+                    type:      type,
                     transport: 'default'
                 });
+            };
 
-                var timerProp = 'formExtraEvents';
-                var processTimer = function () {
-                    var timer = $form.data(timerProp);
-                    if (timer) {
-                        clearTimeout(timer);
+            var beforeUnloadCheck = function () {
+                if (beforeUnloadTimer) {
+                    clearTimeout(beforeUnloadTimer);
+                }
+                if (beforeUnloadTimer !== false) {
+                    beforeUnloadTimer = false;
+                    if ($requestInput) {
+                        $requestInput.remove();
+                        $requestInput = null;
                     }
-                    if (timer !== false) {
-                        $form.data(timerProp, false);
-                        $form.trigger({
-                            type:      'submitstart',
-                            transport: 'default'
-                        });
-                    }
-                };
+                    $window.off('beforeunload', beforeUnloadCheck);
+                    trigger('submitstart');
+                }
+            };
 
-                // beforeunload event polyfill
-                $form.data(timerProp, setTimeout(processTimer, 100));
+            var submitEnd = function () {
+                $window.off('unload', submitEnd);
+                beforeUnloadCheck();
+                if (catchTimer) {
+                    clearInterval(catchTimer);
+                }
+                if (catchTimeoutTimer) {
+                    clearTimeout(catchTimeoutTimer);
+                }
+                if (requestId) {
+                    document.cookie = catchData.param + requestId + '=; expires=' + new Date(0).toUTCString() + '; path=/';
+                }
+                trigger('submitend');
+            };
 
-                // standard beforeunload
-                $window.one('beforeunload', processTimer);
+            trigger('submitbefore');
 
-                $window.one('unload', function () {
-                    processTimer();
-                    $form.trigger({
-                        type:      'submitend',
-                        transport: 'default'
-                    });
-                });
+            // catch download
+            var catchData = $form.data(FormExtraEvents.dataAttribute) || {};
+            if (typeof catchData !== 'object') {
+                catchData = { catchDefault: !!catchData };
             }
-        });
+            catchData = $.extend({}, FormExtraEvents, catchData);
+            if (catchData.catchDefault) {
+                requestId = $.now();
+                $requestInput = $('<input>').attr({
+                    type:  'hidden',
+                    name:  catchData.param,
+                    value: requestId
+                }).appendTo($form);
+
+                catchTimer = setInterval(function () {
+                    if (document.cookie.indexOf(requestId + '=1') !== -1) {
+                        submitEnd();
+                    }
+                }, catchData.interval);
+
+                if (catchData.timeout) {
+                    catchTimeoutTimer = setTimeout(function () {
+                        submitEnd();
+                    }, catchData.timeout);
+                }
+            }
+
+            beforeUnloadTimer = setTimeout(beforeUnloadCheck, 100);
+            $window.one('beforeunload', beforeUnloadCheck);
+            $window.one('unload',       submitEnd);
+        }
+    }
+};
+
+$(document).on('submit', function (e) {
+    if (!e.isDefaultPrevented()) {
+        var eventName = 'submit.last';
+        $window.off(eventName);
+        $window.one(eventName, submitLastHandler);
     }
 });
+return FormExtraEvents;
 
 }));
 
@@ -437,7 +491,7 @@ $.ajaxTransport('+*', function(options) {
  * PaulZi Form
  * @see https://github.com/paulzi/paulzi-form
  * @license MIT (https://github.com/paulzi/paulzi-form/blob/master/LICENSE)
- * @version 3.0.0
+ * @version 3.0.1
  */
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
@@ -456,6 +510,11 @@ $.ajaxTransport('+*', function(options) {
 }(this, function ($) {
 
 'use strict';
+
+// shortcut for uglifyjs
+var w  = window,
+    d  = document,
+    $d = $(d);
 
 var defaultTemplate = function (data) {
     var $result = $();
@@ -494,17 +553,11 @@ var PaulZiForm = $.extend(true, {
     defaultTemplate: defaultTemplate,
     buttonLoadingTemplate: defaultTemplate,
     buttonLoadingForce: false
-}, window.PaulZiForm || {});
-
-var pluginName     = 'paulziForm',
-    eventNamespace = '.' + pluginName,
-    classes        = PaulZiForm.classes,
-    attributes     = PaulZiForm.attributes,
-    defaults       = PaulZiForm.defaults;
+}, w.PaulZiForm || {});
 
 var getSubmitButton = function (form) {
     var selector = 'input[type="submit"],input[type="image"],button[type="submit"]',
-        $btn     = $(document.activeElement).filter(selector);
+        $btn     = $(d.activeElement).filter(selector);
     $.each(form.elements, function (i, input) {
         input = $(input).filter(selector);
         if (!$btn.length && input.length) {
@@ -513,6 +566,16 @@ var getSubmitButton = function (form) {
     });
     return $btn;
 };
+
+var pluginName     = 'paulziForm',
+    eventNamespace = '.' + pluginName,
+    submitLast     = 'submitlast',
+    submitBefore   = 'submitbefore',
+    submitStart    = 'submitstart',
+    submitEnd      = 'submitend',
+    classes        = PaulZiForm.classes,
+    attributes     = PaulZiForm.attributes,
+    defaults       = PaulZiForm.defaults;
 var noEmptyData = pluginName + 'NoEmpty';
 
 var noEmptySubmit = function (e) {
@@ -540,8 +603,8 @@ var noEmptySubmitEnd = function (e) {
     }
 };
 
-$(document).on('submitbefore' + eventNamespace, noEmptySubmit);
-$(document).on('submitstart'  + eventNamespace, noEmptySubmitEnd);
+$d.on(submitBefore + eventNamespace, noEmptySubmit);
+$d.on(submitStart  + eventNamespace, noEmptySubmitEnd);
 var lockData = pluginName + 'Lock';
 
 var lockSubmitLast = function (e) {
@@ -562,9 +625,9 @@ var lockSubmitEnd = function (e) {
     $(e.target).data(lockData, false);
 };
 
-$(document).on('submitlast'   + eventNamespace, lockSubmitLast);
-$(document).on('submitbefore' + eventNamespace, lockSubmitBefore);
-$(document).on('submitend'    + eventNamespace, lockSubmitEnd);
+$d.on(submitLast   + eventNamespace, lockSubmitLast);
+$d.on(submitBefore + eventNamespace, lockSubmitBefore);
+$d.on(submitEnd    + eventNamespace, lockSubmitEnd);
 var scenarioData = pluginName + 'Scenario';
 
 var scenarioSubmit = function (e) {
@@ -589,8 +652,33 @@ var scenarioSubmitStart = function (e) {
     }
 };
 
-$(document).on('submitbefore' + eventNamespace, scenarioSubmit);
-$(document).on('submitstart'  + eventNamespace, scenarioSubmitStart);
+$d.on(submitBefore + eventNamespace, scenarioSubmit);
+$d.on(submitStart  + eventNamespace, scenarioSubmitStart);
+var catchDownloadData = pluginName + 'Catch';
+
+var catchDownloadSubmit = function (e) {
+    var $form    = $(e.target),
+        $btn     = getSubmitButton(e.target),
+        dataAttr = w.FormExtraEvents.dataAttribute,
+        data     = $btn.data(dataAttr);
+    if (typeof data !== 'undefined') {
+        $form.data(catchDownloadData, $form.data(dataAttr) || {});
+        $form.data(dataAttr, data);
+    }
+};
+
+var catchDownloadSubmitStart = function (e) {
+    var $form    = $(e.target),
+        dataAttr = w.FormExtraEvents.dataAttribute,
+        data     = $form.data(catchDownloadData);
+    if (typeof data !== 'undefined') {
+        $form.data(dataAttr, data || {});
+        $form.removeData(catchDownloadData);
+    }
+};
+
+$d.on(submitBefore + eventNamespace, catchDownloadSubmit);
+$d.on(submitStart  + eventNamespace, catchDownloadSubmitStart);
 var inputImageClick = function (e) {
     var $this  = $(this),
         offset = $this.offset();
@@ -607,14 +695,18 @@ var ajaxSubmit = function (e) {
     if (!e.isDefaultPrevented() && ((viaForm === 'ajax' && !viaBtn) || viaBtn === 'ajax')) {
         e.preventDefault();
 
-        var event = $.Event("submitajax");
+        var event = $.Event('submitajax');
         $form.trigger(event);
         if (!event.isDefaultPrevented()) {
 
-            $form.trigger({
-                type:      'submitbefore',
-                transport: 'ajax'
-            });
+            var trigger = function (type, data) {
+                $form.trigger({
+                    type:      type,
+                    transport: 'ajax'
+                }, data);
+            };
+
+            trigger(submitBefore);
 
             var options = {
                 url:         $btn.attr('formaction')  || $form.attr('action'),
@@ -662,16 +754,9 @@ var ajaxSubmit = function (e) {
                 }
             }
 
-            var submitStart = function () {
-                $form.trigger({
-                    type:      'submitstart',
-                    transport: 'ajax'
-                });
-            };
-
             // XHR2 or IFrame
             if (options.contentType === 'multipart/form-data') {
-                if ('FormData' in window) {
+                if ('FormData' in w) {
                     var formData = new FormData($form[0]);
                     $.each(data, function (i, item) {
                         formData.append(item.name, item.value);
@@ -683,7 +768,7 @@ var ajaxSubmit = function (e) {
                     options.data           = data;
                     options.form           = $form[0];
                     options.iframe         = true;
-                    options.iframeOnSubmit = submitStart;
+                    options.iframeOnSubmit = trigger(submitStart);
                 }
             } else {
                 options.data = $.merge($form.serializeArray(), data);
@@ -692,16 +777,10 @@ var ajaxSubmit = function (e) {
             // make ajax
             $.ajax(options)
                 .done(function (data, statusText, jqXHR) {
-                    $form.trigger({
-                        type: 'submitdone',
-                        transport: 'ajax'
-                    }, [data, jqXHR]);
+                    trigger('submitdone', [data, jqXHR]);
                 })
                 .fail(function (jqXHR, statusText, error) {
-                    $form.trigger({
-                        type: 'submitfail',
-                        transport: 'ajax'
-                    }, [jqXHR.responseText, jqXHR, error]);
+                    trigger('submitfail', [jqXHR.responseText, jqXHR, error]);
                 })
                 .always(function () {
                     var data, jqXHR, error;
@@ -713,28 +792,25 @@ var ajaxSubmit = function (e) {
                         jqXHR = arguments[0];
                         error = arguments[2];
                     }
-                    $form.trigger({
-                        type: 'submitend',
-                        transport: 'ajax'
-                    }, [data, jqXHR, error]);
+                    trigger(submitEnd, [data, jqXHR, error]);
                 });
 
             if (!options.iframe) {
-                submitStart();
+                trigger(submitStart);
             }
         }
     }
 };
 
-$(document).on('click'      + eventNamespace, 'input[type="image"]', inputImageClick);
-$(document).on('submitlast' + eventNamespace, ajaxSubmit);
+$d.on('click'    + eventNamespace, 'input[type="image"]', inputImageClick);
+$d.on(submitLast + eventNamespace, ajaxSubmit);
 var ajaxResponseAlways = function (e, data, jqXHR, error) {
     if (e.transport === 'ajax') {
 
         // redirect
         var redirect = jqXHR.getResponseHeader('X-Redirect');
         if (redirect) {
-            document.location.href = redirect;
+            d.location.href = redirect;
             e.preventDefault();
         }
 
@@ -751,7 +827,7 @@ var ajaxResponseAlways = function (e, data, jqXHR, error) {
                         operation = $this.attr(attributes.mode)    || $form.attr(attributes.mode)    || defaults.mode;
                     if ($context && $target) {
                         if ($context === 'document') {
-                            $context = $(document);
+                            $context = $d;
                         } else if ($context === 'this') {
                             $context = $form;
                         } else {
@@ -771,7 +847,7 @@ var ajaxResponseAlways = function (e, data, jqXHR, error) {
 };
 
 if (attributes.via !== false) {
-    $(document).on('submitend' + eventNamespace, ajaxResponseAlways);
+    $d.on(submitEnd + eventNamespace, ajaxResponseAlways);
 }
 var loadingStateSubmit = function (e) {
     var $form = $(e.target).addClass(classes.formLoading),
@@ -802,8 +878,8 @@ var loadingStateSubmitEnd = function (e) {
     }
 };
 
-$(document).on('submitbefore' + eventNamespace, loadingStateSubmit);
-$(document).on('submitend'    + eventNamespace, loadingStateSubmitEnd);
+$d.on(submitBefore + eventNamespace, loadingStateSubmit);
+$d.on(submitEnd    + eventNamespace, loadingStateSubmitEnd);
 return PaulZiForm;
 
 }));

@@ -25,5 +25,5 @@ var noEmptySubmitEnd = function (e) {
     }
 };
 
-$(document).on('submitbefore' + eventNamespace, noEmptySubmit);
-$(document).on('submitstart'  + eventNamespace, noEmptySubmitEnd);
+$d.on(submitBefore + eventNamespace, noEmptySubmit);
+$d.on(submitStart  + eventNamespace, noEmptySubmitEnd);

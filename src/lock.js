@@ -18,6 +18,6 @@ var lockSubmitEnd = function (e) {
     $(e.target).data(lockData, false);
 };
 
-$(document).on('submitlast'   + eventNamespace, lockSubmitLast);
-$(document).on('submitbefore' + eventNamespace, lockSubmitBefore);
-$(document).on('submitend'    + eventNamespace, lockSubmitEnd);
+$d.on(submitLast   + eventNamespace, lockSubmitLast);
+$d.on(submitBefore + eventNamespace, lockSubmitBefore);
+$d.on(submitEnd    + eventNamespace, lockSubmitEnd);

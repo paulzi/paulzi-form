@@ -50,6 +50,8 @@ Include library on page after jQuery. Select standalone or separate method:
 
 It provides extra events for forms: `submitlast`, `submitbefore`, `submitstart`, `submitend`.
 
+Additionally, you can specify the attribute `data-catch-download` to submit button, to override form attribute on send. 
+
 See more: [paulzi/form-extra-events](http://github.com/paulzi/form-extra-events)
 
 ### HTML5 form attributes polyfill

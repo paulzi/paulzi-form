@@ -22,5 +22,5 @@ var scenarioSubmitStart = function (e) {
     }
 };
 
-$(document).on('submitbefore' + eventNamespace, scenarioSubmit);
-$(document).on('submitstart'  + eventNamespace, scenarioSubmitStart);
+$d.on(submitBefore + eventNamespace, scenarioSubmit);
+$d.on(submitStart  + eventNamespace, scenarioSubmitStart);

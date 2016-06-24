@@ -1,3 +1,8 @@
+// shortcut for uglifyjs
+var w  = window,
+    d  = document,
+    $d = $(d);
+
 var defaultTemplate = function (data) {
     var $result = $();
     if (data.icon) {
@@ -35,17 +40,11 @@ var PaulZiForm = $.extend(true, {
     defaultTemplate: defaultTemplate,
     buttonLoadingTemplate: defaultTemplate,
     buttonLoadingForce: false
-}, window.PaulZiForm || {});
-
-var pluginName     = 'paulziForm',
-    eventNamespace = '.' + pluginName,
-    classes        = PaulZiForm.classes,
-    attributes     = PaulZiForm.attributes,
-    defaults       = PaulZiForm.defaults;
+}, w.PaulZiForm || {});
 
 var getSubmitButton = function (form) {
     var selector = 'input[type="submit"],input[type="image"],button[type="submit"]',
-        $btn     = $(document.activeElement).filter(selector);
+        $btn     = $(d.activeElement).filter(selector);
     $.each(form.elements, function (i, input) {
         input = $(input).filter(selector);
         if (!$btn.length && input.length) {
@@ -54,3 +53,13 @@ var getSubmitButton = function (form) {
     });
     return $btn;
 };
+
+var pluginName     = 'paulziForm',
+    eventNamespace = '.' + pluginName,
+    submitLast     = 'submitlast',
+    submitBefore   = 'submitbefore',
+    submitStart    = 'submitstart',
+    submitEnd      = 'submitend',
+    classes        = PaulZiForm.classes,
+    attributes     = PaulZiForm.attributes,
+    defaults       = PaulZiForm.defaults;

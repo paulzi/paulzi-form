@@ -27,5 +27,5 @@ var loadingStateSubmitEnd = function (e) {
     }
 };
 
-$(document).on('submitbefore' + eventNamespace, loadingStateSubmit);
-$(document).on('submitend'    + eventNamespace, loadingStateSubmitEnd);
+$d.on(submitBefore + eventNamespace, loadingStateSubmit);
+$d.on(submitEnd    + eventNamespace, loadingStateSubmitEnd);

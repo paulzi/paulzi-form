@@ -17,6 +17,7 @@ module.exports = function(grunt) {
                     'src/no-empty.js',
                     'src/lock.js',
                     'src/scenarios.js',
+                    'src/catch-download.js',
                     'src/ajax.js',
                     'src/ajax-response.js',
                     'src/loading-state.js'

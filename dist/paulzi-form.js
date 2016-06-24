@@ -2,7 +2,7 @@
  * PaulZi Form
  * @see https://github.com/paulzi/paulzi-form
  * @license MIT (https://github.com/paulzi/paulzi-form/blob/master/LICENSE)
- * @version 3.0.0
+ * @version 3.0.1
  */
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
@@ -21,6 +21,11 @@
 }(this, function ($) {
 
 'use strict';
+
+// shortcut for uglifyjs
+var w  = window,
+    d  = document,
+    $d = $(d);
 
 var defaultTemplate = function (data) {
     var $result = $();
@@ -59,17 +64,11 @@ var PaulZiForm = $.extend(true, {
     defaultTemplate: defaultTemplate,
     buttonLoadingTemplate: defaultTemplate,
     buttonLoadingForce: false
-}, window.PaulZiForm || {});
-
-var pluginName     = 'paulziForm',
-    eventNamespace = '.' + pluginName,
-    classes        = PaulZiForm.classes,
-    attributes     = PaulZiForm.attributes,
-    defaults       = PaulZiForm.defaults;
+}, w.PaulZiForm || {});
 
 var getSubmitButton = function (form) {
     var selector = 'input[type="submit"],input[type="image"],button[type="submit"]',
-        $btn     = $(document.activeElement).filter(selector);
+        $btn     = $(d.activeElement).filter(selector);
     $.each(form.elements, function (i, input) {
         input = $(input).filter(selector);
         if (!$btn.length && input.length) {
@@ -78,6 +77,16 @@ var getSubmitButton = function (form) {
     });
     return $btn;
 };
+
+var pluginName     = 'paulziForm',
+    eventNamespace = '.' + pluginName,
+    submitLast     = 'submitlast',
+    submitBefore   = 'submitbefore',
+    submitStart    = 'submitstart',
+    submitEnd      = 'submitend',
+    classes        = PaulZiForm.classes,
+    attributes     = PaulZiForm.attributes,
+    defaults       = PaulZiForm.defaults;
 var noEmptyData = pluginName + 'NoEmpty';
 
 var noEmptySubmit = function (e) {
@@ -105,8 +114,8 @@ var noEmptySubmitEnd = function (e) {
     }
 };
 
-$(document).on('submitbefore' + eventNamespace, noEmptySubmit);
-$(document).on('submitstart'  + eventNamespace, noEmptySubmitEnd);
+$d.on(submitBefore + eventNamespace, noEmptySubmit);
+$d.on(submitStart  + eventNamespace, noEmptySubmitEnd);
 var lockData = pluginName + 'Lock';
 
 var lockSubmitLast = function (e) {
@@ -127,9 +136,9 @@ var lockSubmitEnd = function (e) {
     $(e.target).data(lockData, false);
 };
 
-$(document).on('submitlast'   + eventNamespace, lockSubmitLast);
-$(document).on('submitbefore' + eventNamespace, lockSubmitBefore);
-$(document).on('submitend'    + eventNamespace, lockSubmitEnd);
+$d.on(submitLast   + eventNamespace, lockSubmitLast);
+$d.on(submitBefore + eventNamespace, lockSubmitBefore);
+$d.on(submitEnd    + eventNamespace, lockSubmitEnd);
 var scenarioData = pluginName + 'Scenario';
 
 var scenarioSubmit = function (e) {
@@ -154,8 +163,33 @@ var scenarioSubmitStart = function (e) {
     }
 };
 
-$(document).on('submitbefore' + eventNamespace, scenarioSubmit);
-$(document).on('submitstart'  + eventNamespace, scenarioSubmitStart);
+$d.on(submitBefore + eventNamespace, scenarioSubmit);
+$d.on(submitStart  + eventNamespace, scenarioSubmitStart);
+var catchDownloadData = pluginName + 'Catch';
+
+var catchDownloadSubmit = function (e) {
+    var $form    = $(e.target),
+        $btn     = getSubmitButton(e.target),
+        dataAttr = w.FormExtraEvents.dataAttribute,
+        data     = $btn.data(dataAttr);
+    if (typeof data !== 'undefined') {
+        $form.data(catchDownloadData, $form.data(dataAttr) || {});
+        $form.data(dataAttr, data);
+    }
+};
+
+var catchDownloadSubmitStart = function (e) {
+    var $form    = $(e.target),
+        dataAttr = w.FormExtraEvents.dataAttribute,
+        data     = $form.data(catchDownloadData);
+    if (typeof data !== 'undefined') {
+        $form.data(dataAttr, data || {});
+        $form.removeData(catchDownloadData);
+    }
+};
+
+$d.on(submitBefore + eventNamespace, catchDownloadSubmit);
+$d.on(submitStart  + eventNamespace, catchDownloadSubmitStart);
 var inputImageClick = function (e) {
     var $this  = $(this),
         offset = $this.offset();
@@ -172,14 +206,18 @@ var ajaxSubmit = function (e) {
     if (!e.isDefaultPrevented() && ((viaForm === 'ajax' && !viaBtn) || viaBtn === 'ajax')) {
         e.preventDefault();
 
-        var event = $.Event("submitajax");
+        var event = $.Event('submitajax');
         $form.trigger(event);
         if (!event.isDefaultPrevented()) {
 
-            $form.trigger({
-                type:      'submitbefore',
-                transport: 'ajax'
-            });
+            var trigger = function (type, data) {
+                $form.trigger({
+                    type:      type,
+                    transport: 'ajax'
+                }, data);
+            };
+
+            trigger(submitBefore);
 
             var options = {
                 url:         $btn.attr('formaction')  || $form.attr('action'),
@@ -227,16 +265,9 @@ var ajaxSubmit = function (e) {
                 }
             }
 
-            var submitStart = function () {
-                $form.trigger({
-                    type:      'submitstart',
-                    transport: 'ajax'
-                });
-            };
-
             // XHR2 or IFrame
             if (options.contentType === 'multipart/form-data') {
-                if ('FormData' in window) {
+                if ('FormData' in w) {
                     var formData = new FormData($form[0]);
                     $.each(data, function (i, item) {
                         formData.append(item.name, item.value);
@@ -248,7 +279,7 @@ var ajaxSubmit = function (e) {
                     options.data           = data;
                     options.form           = $form[0];
                     options.iframe         = true;
-                    options.iframeOnSubmit = submitStart;
+                    options.iframeOnSubmit = trigger(submitStart);
                 }
             } else {
                 options.data = $.merge($form.serializeArray(), data);
@@ -257,16 +288,10 @@ var ajaxSubmit = function (e) {
             // make ajax
             $.ajax(options)
                 .done(function (data, statusText, jqXHR) {
-                    $form.trigger({
-                        type: 'submitdone',
-                        transport: 'ajax'
-                    }, [data, jqXHR]);
+                    trigger('submitdone', [data, jqXHR]);
                 })
                 .fail(function (jqXHR, statusText, error) {
-                    $form.trigger({
-                        type: 'submitfail',
-                        transport: 'ajax'
-                    }, [jqXHR.responseText, jqXHR, error]);
+                    trigger('submitfail', [jqXHR.responseText, jqXHR, error]);
                 })
                 .always(function () {
                     var data, jqXHR, error;
@@ -278,28 +303,25 @@ var ajaxSubmit = function (e) {
                         jqXHR = arguments[0];
                         error = arguments[2];
                     }
-                    $form.trigger({
-                        type: 'submitend',
-                        transport: 'ajax'
-                    }, [data, jqXHR, error]);
+                    trigger(submitEnd, [data, jqXHR, error]);
                 });
 
             if (!options.iframe) {
-                submitStart();
+                trigger(submitStart);
             }
         }
     }
 };
 
-$(document).on('click'      + eventNamespace, 'input[type="image"]', inputImageClick);
-$(document).on('submitlast' + eventNamespace, ajaxSubmit);
+$d.on('click'    + eventNamespace, 'input[type="image"]', inputImageClick);
+$d.on(submitLast + eventNamespace, ajaxSubmit);
 var ajaxResponseAlways = function (e, data, jqXHR, error) {
     if (e.transport === 'ajax') {
 
         // redirect
         var redirect = jqXHR.getResponseHeader('X-Redirect');
         if (redirect) {
-            document.location.href = redirect;
+            d.location.href = redirect;
             e.preventDefault();
         }
 
@@ -316,7 +338,7 @@ var ajaxResponseAlways = function (e, data, jqXHR, error) {
                         operation = $this.attr(attributes.mode)    || $form.attr(attributes.mode)    || defaults.mode;
                     if ($context && $target) {
                         if ($context === 'document') {
-                            $context = $(document);
+                            $context = $d;
                         } else if ($context === 'this') {
                             $context = $form;
                         } else {
@@ -336,7 +358,7 @@ var ajaxResponseAlways = function (e, data, jqXHR, error) {
 };
 
 if (attributes.via !== false) {
-    $(document).on('submitend' + eventNamespace, ajaxResponseAlways);
+    $d.on(submitEnd + eventNamespace, ajaxResponseAlways);
 }
 var loadingStateSubmit = function (e) {
     var $form = $(e.target).addClass(classes.formLoading),
@@ -367,8 +389,8 @@ var loadingStateSubmitEnd = function (e) {
     }
 };
 
-$(document).on('submitbefore' + eventNamespace, loadingStateSubmit);
-$(document).on('submitend'    + eventNamespace, loadingStateSubmitEnd);
+$d.on(submitBefore + eventNamespace, loadingStateSubmit);
+$d.on(submitEnd    + eventNamespace, loadingStateSubmitEnd);
 return PaulZiForm;
 
 }));

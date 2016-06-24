@@ -4,7 +4,7 @@ var ajaxResponseAlways = function (e, data, jqXHR, error) {
         // redirect
         var redirect = jqXHR.getResponseHeader('X-Redirect');
         if (redirect) {
-            document.location.href = redirect;
+            d.location.href = redirect;
             e.preventDefault();
         }
 
@@ -21,7 +21,7 @@ var ajaxResponseAlways = function (e, data, jqXHR, error) {
                         operation = $this.attr(attributes.mode)    || $form.attr(attributes.mode)    || defaults.mode;
                     if ($context && $target) {
                         if ($context === 'document') {
-                            $context = $(document);
+                            $context = $d;
                         } else if ($context === 'this') {
                             $context = $form;
                         } else {
@@ -41,5 +41,5 @@ var ajaxResponseAlways = function (e, data, jqXHR, error) {
 };
 
 if (attributes.via !== false) {
-    $(document).on('submitend' + eventNamespace, ajaxResponseAlways);
+    $d.on(submitEnd + eventNamespace, ajaxResponseAlways);
 }

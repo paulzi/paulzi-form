@@ -50,6 +50,8 @@ bower install paulzi-form
 
 Библиотека предоставляет следующие события: `submitlast`, `submitbefore`, `submitstart`, `submitend`.
 
+Дополнительно вы можете указать атрибут  `data-catch-download` для кнопки отправки, чтобы переопределить значение этого атрибута для формы при отправке.
+
 Более подробно читайте тут: [paulzi/form-extra-events](http://github.com/paulzi/form-extra-events)
 
 ### Полифил HTML5 form атрибутов

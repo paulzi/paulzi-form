@@ -14,14 +14,18 @@ var ajaxSubmit = function (e) {
     if (!e.isDefaultPrevented() && ((viaForm === 'ajax' && !viaBtn) || viaBtn === 'ajax')) {
         e.preventDefault();
 
-        var event = $.Event("submitajax");
+        var event = $.Event('submitajax');
         $form.trigger(event);
         if (!event.isDefaultPrevented()) {
 
-            $form.trigger({
-                type:      'submitbefore',
-                transport: 'ajax'
-            });
+            var trigger = function (type, data) {
+                $form.trigger({
+                    type:      type,
+                    transport: 'ajax'
+                }, data);
+            };
+
+            trigger(submitBefore);
 
             var options = {
                 url:         $btn.attr('formaction')  || $form.attr('action'),
@@ -69,16 +73,9 @@ var ajaxSubmit = function (e) {
                 }
             }
 
-            var submitStart = function () {
-                $form.trigger({
-                    type:      'submitstart',
-                    transport: 'ajax'
-                });
-            };
-
             // XHR2 or IFrame
             if (options.contentType === 'multipart/form-data') {
-                if ('FormData' in window) {
+                if ('FormData' in w) {
                     var formData = new FormData($form[0]);
                     $.each(data, function (i, item) {
                         formData.append(item.name, item.value);
@@ -90,7 +87,7 @@ var ajaxSubmit = function (e) {
                     options.data           = data;
                     options.form           = $form[0];
                     options.iframe         = true;
-                    options.iframeOnSubmit = submitStart;
+                    options.iframeOnSubmit = trigger(submitStart);
                 }
             } else {
                 options.data = $.merge($form.serializeArray(), data);
@@ -99,16 +96,10 @@ var ajaxSubmit = function (e) {
             // make ajax
             $.ajax(options)
                 .done(function (data, statusText, jqXHR) {
-                    $form.trigger({
-                        type: 'submitdone',
-                        transport: 'ajax'
-                    }, [data, jqXHR]);
+                    trigger('submitdone', [data, jqXHR]);
                 })
                 .fail(function (jqXHR, statusText, error) {
-                    $form.trigger({
-                        type: 'submitfail',
-                        transport: 'ajax'
-                    }, [jqXHR.responseText, jqXHR, error]);
+                    trigger('submitfail', [jqXHR.responseText, jqXHR, error]);
                 })
                 .always(function () {
                     var data, jqXHR, error;
@@ -120,18 +111,15 @@ var ajaxSubmit = function (e) {
                         jqXHR = arguments[0];
                         error = arguments[2];
                     }
-                    $form.trigger({
-                        type: 'submitend',
-                        transport: 'ajax'
-                    }, [data, jqXHR, error]);
+                    trigger(submitEnd, [data, jqXHR, error]);
                 });
 
             if (!options.iframe) {
-                submitStart();
+                trigger(submitStart);
             }
         }
     }
 };
 
-$(document).on('click'      + eventNamespace, 'input[type="image"]', inputImageClick);
-$(document).on('submitlast' + eventNamespace, ajaxSubmit);
+$d.on('click'    + eventNamespace, 'input[type="image"]', inputImageClick);
+$d.on(submitLast + eventNamespace, ajaxSubmit);

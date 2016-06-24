@@ -1,6 +1,6 @@
 {
   "name": "paulzi-form",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "JavaScript form helpers",
   "main": "dist/paulzi-form.js",
   "moduleType": [
@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "jquery": ">=1.5.0",
-    "form-extra-events": "^1.0.1",
+    "form-extra-events": "^1.2.0",
     "jquery-iframe-ajax": "^1.0.1",
     "form-association-polyfill": "^1.0.2"
   },
