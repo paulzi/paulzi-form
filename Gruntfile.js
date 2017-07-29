@@ -48,7 +48,7 @@ module.exports = function(grunt) {
                     objectToExport: 'PaulZiForm',
                     deps: {
                         'default': [{'jquery': '$'}],
-                        global: ['root.jQuery']
+                        global: ['jQuery']
                     }
                 }
             }

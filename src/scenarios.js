@@ -4,7 +4,7 @@ var scenarioSubmit = function (e) {
     var $form = $(e.target),
         list  = [];
     $.each($form.prop('elements'), function (i, input) {
-        var value = $(input).closest('[' + attributes.via + ']').attr(attributes.via);
+        var value = $(input).closest('form, [' + attributes.via + ']').not('form').attr(attributes.via);
         if (value && value !== 'all' && value !== e.transport && !input.disabled && input.type !== 'submit') {
             input.disabled = true;
             list.push(input);

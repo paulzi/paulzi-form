@@ -499,13 +499,13 @@ $.ajaxTransport('+*', function(options) {
     define(["jquery"], function (a0) {
       return (root['PaulZiForm'] = factory(a0));
     });
-  } else if (typeof exports === 'object') {
+  } else if (typeof module === 'object' && module.exports) {
     // Node. Does not work with strict CommonJS, but
     // only CommonJS-like environments that support module.exports,
     // like Node.
     module.exports = factory(require("jquery"));
   } else {
-    root['PaulZiForm'] = factory(root.jQuery);
+    root['PaulZiForm'] = factory(root["jQuery"]);
   }
 }(this, function ($) {
 
@@ -634,7 +634,7 @@ var scenarioSubmit = function (e) {
     var $form = $(e.target),
         list  = [];
     $.each($form.prop('elements'), function (i, input) {
-        var value = $(input).closest('[' + attributes.via + ']').attr(attributes.via);
+        var value = $(input).closest('form, [' + attributes.via + ']').not('form').attr(attributes.via);
         if (value && value !== 'all' && value !== e.transport && !input.disabled && input.type !== 'submit') {
             input.disabled = true;
             list.push(input);

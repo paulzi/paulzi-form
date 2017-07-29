@@ -1,6 +1,6 @@
 {
   "name": "paulzi-form",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "JavaScript form helpers",
   "main": "dist/paulzi-form.js",
   "moduleType": [
@@ -34,6 +34,6 @@
     "grunt-contrib-jshint": "^1.0.0",
     "grunt-contrib-uglify": "^1.0.1",
     "grunt-contrib-watch": "^1.0.0",
-    "grunt-umd": "^2.3.6"
+    "grunt-umd": "^2.4.0"
   }
 }
