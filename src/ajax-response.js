@@ -37,7 +37,7 @@ var ajaxResponseAlways = function (e, data, jqXHR, error) {
                         } else if (params === 'false') {
                             $target[operation]();
                         } else {
-                            $target[operation](params, this);
+                            $target[operation](params);
                         }
                         $form.trigger('contentinit', [$data, operation, $target]);
                     }
