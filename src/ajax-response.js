@@ -18,7 +18,8 @@ var ajaxResponseAlways = function (e, data, jqXHR, error) {
                     var $this     = $(this),
                         $target   = $this.attr(attributes.to)      || $form.attr(attributes.to)      || defaults.to,
                         $context  = $this.attr(attributes.context) || $form.attr(attributes.context) || defaults.context,
-                        operation = $this.attr(attributes.mode)    || $form.attr(attributes.mode)    || defaults.mode;
+                        operation = $this.attr(attributes.mode)    || $form.attr(attributes.mode)    || defaults.mode,
+                        params    = $this.attr(attributes.params)  || $form.attr(attributes.params)  || defaults.params;
                     if ($context && $target) {
                         if ($context === 'document') {
                             $context = $d;
@@ -31,7 +32,13 @@ var ajaxResponseAlways = function (e, data, jqXHR, error) {
                     }
                     if ($target && $target.length && $target[operation]) {
                         $form.trigger('contentprepare', [$data, operation, $target]);
-                        $target[operation](this);
+                        if (params === 'true') {
+                            $target[operation](this);
+                        } else if (params === 'false') {
+                            $target[operation]();
+                        } else {
+                            $target[operation](params, this);
+                        }
                         $form.trigger('contentinit', [$data, operation, $target]);
                     }
                 });

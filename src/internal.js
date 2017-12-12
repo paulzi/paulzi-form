@@ -26,6 +26,7 @@ var PaulZiForm = $.extend(true, {
         to:          'data-insert-to',
         context:     'data-insert-context',
         mode:        'data-insert-mode',
+        params:      'data-insert-params',
         loadingText: 'data-loading-text',
         loadingIcon: 'data-loading-icon'
     },
@@ -35,6 +36,7 @@ var PaulZiForm = $.extend(true, {
         to:          'output',
         context:     'this',
         mode:        'html',
+        params:      'true',
         skipOnError: false
     },
     defaultTemplate: defaultTemplate,
@@ -43,7 +45,7 @@ var PaulZiForm = $.extend(true, {
 }, w.PaulZiForm || {});
 
 var getSubmitButton = function (form) {
-    var selector = 'input[type="submit"],input[type="image"],button[type="submit"]',
+    var selector = 'input[type="submit"],input[type="image"],button[type="submit"],:not(button[type])',
         $btn     = $(d.activeElement).filter(selector);
     $.each(form.elements, function (i, input) {
         input = $(input).filter(selector);

@@ -269,6 +269,7 @@ Options:
     - `to` *(string) default: 'data-insert-to'* - ajax response handling target attribute name  
     - `context` *(string) default: 'data-insert-context'* - ajax response handling context attribute name
     - `mode` *(string) default: 'data-insert-mode'* - ajax response handling mode attribute name
+    - `params` *(string) default: 'data-insert-param'* - ajax response handling mode params
     - `loadingText` *(string) default: 'data-loading-text'* - set text of submitting state button attribute name
     - `loadingIcon` *(string) default: 'data-loading-icon'* - set icon of submitting state button attribute name
 - `defaults` *(plain object)* - a list of default values
@@ -277,6 +278,7 @@ Options:
     - `to` *(string) default: 'output'* - ajax response handling default target
     - `context` *(string) default: 'this'* - ajax response handling default context
     - `mode` *(string) default: 'html'* - ajax response handling default mode
+    - `params` *(string) default: 'true'* - ajax response handling default mode params
     - `skipOnError` *(bool) default: false* - ajax response handling skip by error
 - `buttonLoadingTemplate` *(function)* - template of submitting button state (more see below)
 - `defaultTemplate` *(function)* - store default function for template (you can re-use)
