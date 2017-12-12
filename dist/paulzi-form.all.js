@@ -491,7 +491,7 @@ $.ajaxTransport('+*', function(options) {
  * PaulZi Form
  * @see https://github.com/paulzi/paulzi-form
  * @license MIT (https://github.com/paulzi/paulzi-form/blob/master/LICENSE)
- * @version 3.0.1
+ * @version 3.0.4
  */
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
@@ -539,6 +539,7 @@ var PaulZiForm = $.extend(true, {
         to:          'data-insert-to',
         context:     'data-insert-context',
         mode:        'data-insert-mode',
+        params:      'data-insert-params',
         loadingText: 'data-loading-text',
         loadingIcon: 'data-loading-icon'
     },
@@ -548,6 +549,7 @@ var PaulZiForm = $.extend(true, {
         to:          'output',
         context:     'this',
         mode:        'html',
+        params:      'true',
         skipOnError: false
     },
     defaultTemplate: defaultTemplate,
@@ -556,7 +558,7 @@ var PaulZiForm = $.extend(true, {
 }, w.PaulZiForm || {});
 
 var getSubmitButton = function (form) {
-    var selector = 'input[type="submit"],input[type="image"],button[type="submit"]',
+    var selector = 'input[type="submit"],input[type="image"],button[type="submit"],:not(button[type])',
         $btn     = $(d.activeElement).filter(selector);
     $.each(form.elements, function (i, input) {
         input = $(input).filter(selector);
@@ -824,7 +826,8 @@ var ajaxResponseAlways = function (e, data, jqXHR, error) {
                     var $this     = $(this),
                         $target   = $this.attr(attributes.to)      || $form.attr(attributes.to)      || defaults.to,
                         $context  = $this.attr(attributes.context) || $form.attr(attributes.context) || defaults.context,
-                        operation = $this.attr(attributes.mode)    || $form.attr(attributes.mode)    || defaults.mode;
+                        operation = $this.attr(attributes.mode)    || $form.attr(attributes.mode)    || defaults.mode,
+                        params    = $this.attr(attributes.params)  || $form.attr(attributes.params)  || defaults.params;
                     if ($context && $target) {
                         if ($context === 'document') {
                             $context = $d;
@@ -837,7 +840,13 @@ var ajaxResponseAlways = function (e, data, jqXHR, error) {
                     }
                     if ($target && $target.length && $target[operation]) {
                         $form.trigger('contentprepare', [$data, operation, $target]);
-                        $target[operation](this);
+                        if (params === 'true') {
+                            $target[operation](this);
+                        } else if (params === 'false') {
+                            $target[operation]();
+                        } else {
+                            $target[operation](params, this);
+                        }
                         $form.trigger('contentinit', [$data, operation, $target]);
                     }
                 });
