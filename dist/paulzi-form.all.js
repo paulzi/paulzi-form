@@ -491,7 +491,7 @@ $.ajaxTransport('+*', function(options) {
  * PaulZi Form
  * @see https://github.com/paulzi/paulzi-form
  * @license MIT (https://github.com/paulzi/paulzi-form/blob/master/LICENSE)
- * @version 3.0.4
+ * @version 3.0.5
  */
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
@@ -845,7 +845,7 @@ var ajaxResponseAlways = function (e, data, jqXHR, error) {
                         } else if (params === 'false') {
                             $target[operation]();
                         } else {
-                            $target[operation](params, this);
+                            $target[operation](params);
                         }
                         $form.trigger('contentinit', [$data, operation, $target]);
                     }
