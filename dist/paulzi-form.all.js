@@ -491,7 +491,7 @@ $.ajaxTransport('+*', function(options) {
  * PaulZi Form
  * @see https://github.com/paulzi/paulzi-form
  * @license MIT (https://github.com/paulzi/paulzi-form/blob/master/LICENSE)
- * @version 3.0.5
+ * @version 3.0.6
  */
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
@@ -777,7 +777,7 @@ var ajaxSubmit = function (e) {
             }
 
             // make ajax
-            $.ajax(options)
+            var jqXhr = $.ajax(options)
                 .done(function (data, statusText, jqXHR) {
                     trigger('submitdone', [data, jqXHR]);
                 })
@@ -798,7 +798,7 @@ var ajaxSubmit = function (e) {
                 });
 
             if (!options.iframe) {
-                trigger(submitStart);
+                trigger(submitStart, [jqXhr]);
             }
         }
     }

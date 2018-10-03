@@ -94,7 +94,7 @@ var ajaxSubmit = function (e) {
             }
 
             // make ajax
-            $.ajax(options)
+            var jqXhr = $.ajax(options)
                 .done(function (data, statusText, jqXHR) {
                     trigger('submitdone', [data, jqXHR]);
                 })
@@ -115,7 +115,7 @@ var ajaxSubmit = function (e) {
                 });
 
             if (!options.iframe) {
-                trigger(submitStart);
+                trigger(submitStart, [jqXhr]);
             }
         }
     }
