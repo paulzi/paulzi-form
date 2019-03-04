@@ -5,6 +5,8 @@
 
 Дополнительный функционал по отправке html форм.
 
+**Данный пакет устарел. Дальнейшее развитие библиотеки для современных браузеров ведётся в репозитории [form-plus](http://github.com/paulzi/form-plus).**
+
 Демо: http://paulzi.ru/paulzi-form/
 
 [English readme](https://github.com/paulzi/paulzi-form)
