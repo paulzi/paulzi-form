@@ -1,6 +1,6 @@
 # PaulZi Form v. 2
 
-## [DEMO](http://paulzi.ru/paulzi-form-2/)
+## [DEMO](https://paulzi.ru/misc/github/paulzi-form/v2/)
 
 ## Install
 
