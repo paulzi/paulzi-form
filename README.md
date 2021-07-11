@@ -7,7 +7,7 @@ JavaScript form helpers.
 
 **This package is out of date. Further development of the package for modern browsers is in [form-plus](http://github.com/paulzi/form-plus).**
 
-Demo: http://paulzi.ru/paulzi-form/
+Demo: https://paulzi.ru/misc/github/paulzi-form/v3/
 
 [Russian readme](https://github.com/paulzi/paulzi-form/blob/master/README.ru.md)
 
